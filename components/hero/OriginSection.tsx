@@ -31,7 +31,7 @@ export function OriginSection() {
             en="It started with two neighbors and "
           />
           <em className="font-light italic">
-            <LocalizedText es="una hoja de cálculo." en="a spreadsheet." />
+            <LocalizedText es=" una hoja de cálculo." en=" a spreadsheet." />
           </em>
         </h2>
 
