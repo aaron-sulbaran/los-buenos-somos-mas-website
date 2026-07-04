@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useLanguage, useT } from "@/lib/i18n/language-context";
 import { LocalizedText } from "@/components/i18n/LocalizedText";
-import type { MoneyOut } from "@/lib/sheets/types";
+import type { MoneyOutWithPreview } from "@/lib/og";
 import { LedgerRow } from "./LedgerRow";
 
 /** Combining diacritical marks, stripped after NFD for accent-insensitive search. */
@@ -21,11 +21,11 @@ function fold(value: string): string {
 /** Sentinel category key for rows with no category cell. */
 const UNCATEGORIZED = "__uncategorized__";
 
-function categoryKey(row: MoneyOut): string {
+function categoryKey(row: MoneyOutWithPreview): string {
   return row.category ?? UNCATEGORIZED;
 }
 
-export function MoneyOutLedger({ rows }: { rows: MoneyOut[] }) {
+export function MoneyOutLedger({ rows }: { rows: MoneyOutWithPreview[] }) {
   const { lang } = useLanguage();
   const t = useT();
   const [query, setQuery] = useState("");

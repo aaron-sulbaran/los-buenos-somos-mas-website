@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { LocalizedText } from "@/components/i18n/LocalizedText";
+import type { MediaItem } from "@/lib/sheets/types";
 
 type ReceiptLightboxProps = {
-  fileIds: string[];
+  items: MediaItem[];
   /** Index to open at, or null when the lightbox is closed. */
   openIndex: number | null;
   onClose: () => void;
@@ -21,7 +23,7 @@ function receiptSrc(fileId: string): string {
  * a row has more than one receipt.
  */
 export function ReceiptLightbox({
-  fileIds,
+  items,
   openIndex,
   onClose,
 }: ReceiptLightboxProps) {
@@ -30,7 +32,7 @@ export function ReceiptLightbox({
   const [lastOpenIndex, setLastOpenIndex] = useState<number | null>(null);
   const { lang } = useLanguage();
 
-  const total = fileIds.length;
+  const total = items.length;
   const hasMany = total > 1;
 
   // Adjust state during render when the parent opens the lightbox at a new
@@ -82,7 +84,8 @@ export function ReceiptLightbox({
   const prevLabel = lang === "es" ? "Recibo anterior" : "Previous receipt";
   const nextLabel = lang === "es" ? "Recibo siguiente" : "Next receipt";
 
-  const fileId = fileIds[index];
+  const current = items[index];
+  const fileId = current?.fileId;
 
   return (
     <dialog
@@ -94,8 +97,17 @@ export function ReceiptLightbox({
     >
       <div className="relative rounded-lg border border-border bg-card p-3 sm:p-4">
         <div className="flex items-center justify-between gap-3 pb-3">
-          <span className="text-xs tabular-nums text-muted">
-            {hasMany ? `${index + 1} / ${total}` : ""}
+          <span className="min-w-0 flex-1 truncate text-xs uppercase tracking-wide text-muted">
+            {current?.label ? (
+              current.label
+            ) : (
+              <LocalizedText es="Recibo" en="Receipt" />
+            )}
+            {hasMany ? (
+              <span className="ml-2 tabular-nums normal-case tracking-normal">
+                {index + 1} / {total}
+              </span>
+            ) : null}
           </span>
           <button
             type="button"

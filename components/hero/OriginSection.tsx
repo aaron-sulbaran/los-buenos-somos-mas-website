@@ -1,6 +1,7 @@
 import { LocalizedText } from "@/components/i18n/LocalizedText";
 import { PhotoPlaceholder } from "@/components/home/PhotoPlaceholder";
 import { Reveal } from "@/components/home/Reveal";
+import { publicImage } from "@/lib/content/assets";
 
 /**
  * Origin story. Photo of the organizers at left, text at right, with a short
@@ -8,15 +9,21 @@ import { Reveal } from "@/components/home/Reveal";
  * lives here by intent, as a named brand mark rather than section scaffolding.
  */
 export function OriginSection() {
+  const originPhoto = publicImage("home/origin");
+
   return (
     <section className="grid grid-cols-1 border-t border-border min-[860px]:grid-cols-[0.95fr_1.05fr]">
       <div className="relative min-h-[280px] border-b border-border min-[860px]:min-h-[440px] min-[860px]:border-b-0 min-[860px]:border-r">
-        {/* TODO organizers: replace with an organizer-owned photo of Barbara
-            and Kelly, rendered grayscale and credited. No faces until then. */}
+        {/* Drop public/images/home/origin.{jpg,png,webp} for an organizer-owned
+            photo of Barbara and Kelly, rendered grayscale and credited. No
+            faces until then; the tonal placeholder holds the slot. */}
         <PhotoPlaceholder
           slug="organizers photo"
           captionEs="las organizadoras"
           captionEn="the organizers"
+          src={originPhoto}
+          altEs="Barbara y Kelly, organizadoras del fondo"
+          altEn="Barbara and Kelly, fund organizers"
         />
       </div>
 

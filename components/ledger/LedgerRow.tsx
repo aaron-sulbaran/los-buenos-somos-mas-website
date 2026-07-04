@@ -6,14 +6,93 @@ import { useLanguage, useT } from "@/lib/i18n/language-context";
 import { formatDate, formatUsd } from "@/lib/format";
 import { LocalizedText } from "@/components/i18n/LocalizedText";
 import { pickLocalized } from "@/lib/i18n/fallback";
-import type { MoneyOut } from "@/lib/sheets/types";
+import type { MoneyOutWithPreview } from "@/lib/og";
 import { ReceiptLightbox } from "./ReceiptLightbox";
 
 function receiptSrc(fileId: string): string {
   return `/api/drive-image?id=${encodeURIComponent(fileId)}`;
 }
 
-export function LedgerRow({ row }: { row: MoneyOut }) {
+/**
+ * The publication card that replaces the old text link. It links out to the
+ * organizer's public post and resolves its image in priority order: the
+ * maintainer's Publicación screenshot, then the scraped og:image (which can
+ * expire, so it falls back on error), then the designed logo panel. The
+ * outbound arrow shows in every tier so the card always reads as a link out.
+ */
+function PublicationCard({
+  href,
+  previewFileId,
+  previewImageUrl,
+}: {
+  href: string;
+  previewFileId?: string;
+  previewImageUrl?: string;
+}) {
+  const { lang } = useLanguage();
+  const [scrapedFailed, setScrapedFailed] = useState(false);
+
+  const usingScraped =
+    previewFileId === undefined &&
+    previewImageUrl !== undefined &&
+    !scrapedFailed;
+
+  const imageSrc = previewFileId
+    ? receiptSrc(previewFileId)
+    : usingScraped
+      ? previewImageUrl
+      : null;
+
+  const openLabel = lang === "es" ? "Ver la publicación" : "View the post";
+  const previewAlt =
+    lang === "es" ? "Vista previa de la publicación" : "Post preview";
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block overflow-hidden rounded-lg border border-border bg-card transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+    >
+      <div className="relative aspect-square w-full bg-card">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt={previewAlt}
+            loading="lazy"
+            onError={usingScraped ? () => setScrapedFailed(true) : undefined}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center">
+            <img
+              src="/images/instagram/instagram-logo.png"
+              alt=""
+              aria-hidden="true"
+              className="h-8 w-8 opacity-70"
+            />
+            <span className="text-[11px] uppercase tracking-wide text-muted">
+              {openLabel}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
+        <span className="truncate text-[11px] uppercase tracking-wide text-muted">
+          {openLabel}
+        </span>
+        <span
+          aria-hidden="true"
+          className="shrink-0 text-muted transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        >
+          &#8599;
+        </span>
+      </div>
+    </a>
+  );
+}
+
+export function LedgerRow({ row }: { row: MoneyOutWithPreview }) {
   const { lang } = useLanguage();
   const t = useT();
   const reduceMotion = useReducedMotion();
@@ -23,7 +102,8 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
 
   const description = pickLocalized(lang, row.descriptionEs, row.descriptionEn);
   const category = row.category ?? t("common.uncategorized");
-  const hasReceipts = row.media.length > 0;
+  const hasMedia = row.media.length > 0;
+  const hasPublication = Boolean(row.publicLink);
 
   const thumbAlt = lang === "es" ? "Recibo del fondo" : "Fund receipt";
   const openReceiptLabel = lang === "es" ? "Ver recibo" : "View receipt";
@@ -88,37 +168,63 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
             transition={{ duration: 0.24, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="space-y-4 pb-5">
+            <div className="space-y-5 pb-5">
               <p className="max-w-2xl text-body">{description}</p>
 
-              {hasReceipts ? (
-                <div>
-                  <p className="mb-2 text-xs uppercase tracking-wide text-muted">
-                    <LocalizedText es="Recibos" en="Receipts" />
-                  </p>
-                  <ul className="flex flex-wrap gap-2">
-                    {row.media.map(({ fileId }, index) => (
-                      <li key={fileId}>
-                        <button
-                          type="button"
-                          onClick={() => setLightboxIndex(index)}
-                          aria-label={`${openReceiptLabel} ${index + 1}`}
-                          className="block overflow-hidden rounded border border-border bg-card transition-opacity hover:opacity-90"
-                        >
-                          <img
-                            src={receiptSrc(fileId)}
-                            alt={thumbAlt}
-                            loading="lazy"
-                            className="h-24 w-20 object-cover"
-                          />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+              {hasMedia || hasPublication ? (
+                <div className="flex flex-col gap-6 min-[720px]:flex-row min-[720px]:items-start">
+                  {hasMedia ? (
+                    <div className="min-w-0 flex-1">
+                      <p className="mb-2 text-xs uppercase tracking-wide text-muted">
+                        <LocalizedText es="Recibos" en="Receipts" />
+                      </p>
+                      <ul className="grid gap-x-3 gap-y-4 [grid-template-columns:repeat(auto-fill,5rem)]">
+                        {row.media.map((item, index) => (
+                          <li key={item.fileId}>
+                            <button
+                              type="button"
+                              onClick={() => setLightboxIndex(index)}
+                              aria-label={`${openReceiptLabel} ${index + 1}`}
+                              className="block w-20 text-left"
+                            >
+                              <span className="block overflow-hidden rounded border border-border bg-card transition-opacity hover:opacity-90">
+                                <img
+                                  src={receiptSrc(item.fileId)}
+                                  alt={thumbAlt}
+                                  loading="lazy"
+                                  className="h-24 w-full object-cover"
+                                />
+                              </span>
+                              <span className="mt-1.5 line-clamp-2 block text-[11px] uppercase leading-snug tracking-wide text-muted">
+                                {item.label ? (
+                                  item.label
+                                ) : (
+                                  <LocalizedText es="Recibo" en="Receipt" />
+                                )}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {hasPublication && row.publicLink ? (
+                    <div className="w-full max-w-[15rem] shrink-0 min-[720px]:w-60">
+                      <p className="mb-2 text-xs uppercase tracking-wide text-muted">
+                        <LocalizedText es="Publicación" en="Publication" />
+                      </p>
+                      <PublicationCard
+                        href={row.publicLink}
+                        previewFileId={row.publicationPreviewFileId}
+                        previewImageUrl={row.previewImageUrl}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
-              {row.city || row.purchaser || row.publicLink ? (
+              {row.city || row.purchaser ? (
                 <div className="flex flex-wrap items-center gap-2">
                   {row.city ? (
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted">
@@ -136,21 +242,6 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
                       {row.purchaser}
                     </span>
                   ) : null}
-
-                  {row.publicLink ? (
-                    <a
-                      href={row.publicLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 border-b border-foreground pb-0.5 text-xs text-foreground transition-opacity hover:opacity-70"
-                    >
-                      <LocalizedText
-                        es="Ver publicación pública"
-                        en="View public post"
-                      />
-                      <span aria-hidden="true">&#8599;</span>
-                    </a>
-                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -158,9 +249,9 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
         ) : null}
       </AnimatePresence>
 
-      {hasReceipts ? (
+      {hasMedia ? (
         <ReceiptLightbox
-          fileIds={row.media.map((item) => item.fileId)}
+          items={row.media}
           openIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
         />

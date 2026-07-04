@@ -9,19 +9,50 @@ import { LocalizedText } from "@/components/i18n/LocalizedText";
  *
  * Stripes are built from the foreground token at low alpha (via color-mix) so
  * the placeholder stays inside the palette with no hardcoded colors.
+ *
+ * When `src` is provided (from `publicImage`, called by a parent server
+ * component) the real photo renders instead, grayscale via CSS filter, with
+ * overlays such as the tricolor hairline or a location chip still layered on
+ * top through `children`. Alt text combines both languages into one string
+ * since an HTML attribute cannot react to the language toggle.
  */
 export function PhotoPlaceholder({
   slug,
   captionEs,
   captionEn,
+  src,
+  altEs,
+  altEn,
   children,
 }: {
   /** Fixed monospace marker, e.g. "grayscale photo". Not translated. */
   slug: string;
   captionEs: string;
   captionEn?: string;
+  /** Public path from publicImage(), or null when no file has been dropped in. */
+  src?: string | null;
+  /** Bilingual alt text; falls back to the captions when omitted. */
+  altEs?: string;
+  altEn?: string;
   children?: ReactNode;
 }) {
+  if (src) {
+    const es = altEs ?? captionEs;
+    const en = altEn ?? captionEn ?? es;
+    const alt = en !== es ? `${es} / ${en}` : es;
+    return (
+      <div className="relative h-full w-full overflow-hidden bg-card">
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="h-full w-full object-cover grayscale"
+        />
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-card">
       <div

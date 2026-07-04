@@ -1,6 +1,7 @@
 import { getLedgerData } from "@/lib/sheets";
 import { reconcileTotals } from "@/lib/totals";
-import type { MoneyIn, MoneyOut } from "@/lib/sheets/types";
+import { enrichPublicationPreviews, type MoneyOutWithPreview } from "@/lib/og";
+import type { MoneyIn } from "@/lib/sheets/types";
 import { TotalsSummary } from "@/components/transparency/TotalsSummary";
 import { ChannelSplit } from "@/components/transparency/ChannelSplit";
 import { MoneyInList } from "@/components/transparency/MoneyInList";
@@ -29,6 +30,8 @@ function SectionHeading({ es, en }: { es: string; en?: string }) {
  */
 export default async function TransparencyPage() {
   const { data, error } = await getLedgerData();
+  const moneyOut =
+    data !== null ? await enrichPublicationPreviews(data.moneyOut) : [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -47,10 +50,7 @@ export default async function TransparencyPage() {
           <DataUnavailable />
         </div>
       ) : (
-        <TransparencyContent
-          moneyIn={data.moneyIn}
-          moneyOut={data.moneyOut}
-        />
+        <TransparencyContent moneyIn={data.moneyIn} moneyOut={moneyOut} />
       )}
     </div>
   );
@@ -61,7 +61,7 @@ function TransparencyContent({
   moneyOut,
 }: {
   moneyIn: MoneyIn[];
-  moneyOut: MoneyOut[];
+  moneyOut: MoneyOutWithPreview[];
 }) {
   const totals = reconcileTotals(moneyIn, moneyOut);
 

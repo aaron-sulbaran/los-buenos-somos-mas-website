@@ -5,6 +5,7 @@ import {
 } from "@/components/i18n/LocalizedText";
 import { HeroStars } from "@/components/home/HeroStars";
 import { PhotoPlaceholder } from "@/components/home/PhotoPlaceholder";
+import { publicImage } from "@/lib/content/assets";
 
 /**
  * Split hero, Warm Archive direction. Type on warm paper at left under a very
@@ -13,6 +14,8 @@ import { PhotoPlaceholder } from "@/components/home/PhotoPlaceholder";
  * like a ledger opened next to a photograph. Stacks below 860px.
  */
 export function Hero() {
+  const heroPhoto = publicImage("home/hero");
+
   return (
     <section className="grid grid-cols-1 min-[860px]:min-h-[calc(100svh-3.25rem)] min-[860px]:grid-cols-[1.05fr_0.95fr]">
       {/* Left: type on paper */}
@@ -109,6 +112,9 @@ export function Hero() {
           slug="grayscale photo"
           captionEs="distribución de ayuda"
           captionEn="aid distribution"
+          src={heroPhoto}
+          altEs="Distribución de ayuda en La Guaira"
+          altEn="Aid distribution in La Guaira"
         >
           {/* 4px tricolor hairline column at the panel edge */}
           <div

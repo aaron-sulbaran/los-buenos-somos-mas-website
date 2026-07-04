@@ -1,16 +1,16 @@
 import { LocalizedText } from "@/components/i18n/LocalizedText";
 import { Reveal } from "./Reveal";
+import { publicImage } from "@/lib/content/assets";
+import { INSTAGRAM_POSTS } from "@/lib/content/links";
 
 /**
- * Instagram embeds, structural placeholder. The organizers posted updates as
- * the work happened; those posts will embed here once the URLs are collected.
- * Until then this holds the slots honestly rather than faking content.
+ * Feed-style preview cards for the organizers' public Instagram posts. Each
+ * card links out to the post itself; nothing is embedded, no scripts run, and
+ * nothing autoplays. When a post's image has not been dropped into
+ * public/images/instagram/ yet, the card falls back to the Instagram mark
+ * centered on a card panel so the slot still reads as intentional.
  */
 export function InstagramSection() {
-  // TODO organizers: provide the public Instagram post URLs to embed. Only
-  // accounts already public that chose to post; no private accounts.
-  const SLOTS = ["1", "2", "3"];
-
   return (
     <section className="border-t border-border px-6 py-16 sm:px-10 sm:py-20 min-[860px]:px-14">
       <div className="mx-auto max-w-5xl">
@@ -19,20 +19,47 @@ export function InstagramSection() {
         </h2>
         <p className="mt-3 max-w-[52ch] text-body">
           <LocalizedText
-            es="Las publicaciones de las organizadoras a medida que la ayuda llegaba. Se enlazarán aquí cuando estén listas."
-            en="The organizers' posts as the aid arrived. They will be linked here once ready."
+            es="Las publicaciones de las organizadoras a medida que la ayuda llegaba."
+            en="The organizers' posts as the aid arrived."
           />
         </p>
 
         <Reveal className="mt-10 grid grid-cols-1 gap-5 min-[560px]:grid-cols-3">
-          {SLOTS.map((slot) => (
-            <div
-              key={slot}
-              className="flex aspect-[4/5] items-center justify-center rounded-lg border border-dashed border-border bg-card font-mono text-[11px] uppercase tracking-[0.12em] text-muted/70"
-            >
-              [ instagram post ]
-            </div>
-          ))}
+          {INSTAGRAM_POSTS.map((post) => {
+            const photo = publicImage(post.image);
+            return (
+              <a
+                key={post.image}
+                href={post.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex aspect-[4/5] flex-col overflow-hidden rounded-lg border border-border bg-card transition-opacity hover:opacity-90"
+              >
+                <div className="relative flex-1 overflow-hidden bg-card">
+                  {photo ? (
+                    <img
+                      src={photo}
+                      alt={`${post.captionEs} / ${post.captionEn}`}
+                      loading="lazy"
+                      className="h-full w-full object-cover grayscale"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-card">
+                      <img
+                        src="/images/instagram/instagram-logo.png"
+                        alt="Instagram"
+                        loading="lazy"
+                        className="h-8 w-8 opacity-60"
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="border-t border-border px-4 py-3 text-sm text-body">
+                  <LocalizedText es={post.captionEs} en={post.captionEn} />
+                </p>
+              </a>
+            );
+          })}
         </Reveal>
       </div>
     </section>
