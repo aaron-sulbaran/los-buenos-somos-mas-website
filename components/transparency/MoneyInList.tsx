@@ -81,7 +81,7 @@ export function MoneyInList({ rows }: { rows: MoneyIn[] }) {
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-sm tabular-nums text-body">
+                  <span className="ml-auto text-sm tabular-nums text-body">
                     {formatUsd(row.amountUsd, lang)}
                   </span>
                 </li>
