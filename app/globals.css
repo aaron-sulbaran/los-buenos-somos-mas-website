@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: #fafaf8;
+  --color-foreground: #171717;
+  --color-muted: #6b6b6b;
+  --color-border: #e7e4de;
+  --color-card: #ffffff;
+  --color-accent-yellow: #ffce00;
+  --color-accent-blue: #0033a0;
+  --color-accent-red: #ce1126;
+  --color-hero-ink: #f5f5f3;
 }
 
+/* Fonts are attached to <html> by next/font in app/layout.tsx.
+   @theme inline lets Tailwind utilities reference those runtime variables. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-instrument-sans), sans-serif;
+  --font-display: var(--font-fraunces), serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Single documentary palette; the site intentionally has no dark mode. */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
