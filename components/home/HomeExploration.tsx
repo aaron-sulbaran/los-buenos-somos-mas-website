@@ -19,9 +19,10 @@ import {
  *  - Display font: the display serif swaps between Fraunces (default) and two
  *    editorial alternates, Newsreader and Spectral.
  *
- * In production `process.env.NODE_ENV` folds to a constant, so the toggle, the
- * switching styles, and the alternate branches are dead-code eliminated. The
- * page then renders the defaults with no exploration surface at all.
+ * Enabled in development, and on deploys when NEXT_PUBLIC_SHOW_EXPLORATION is
+ * "true" (used for organizer walkthrough previews). When neither is set the
+ * toggle, switching styles, and alternate branches are dead-code eliminated
+ * and the page renders the locked defaults with no exploration surface.
  *
  * The selected values live in localStorage and are read through
  * useSyncExternalStore, the same hydration-safe pattern the language context
@@ -31,7 +32,9 @@ import {
 export type StarMotif = "scatter" | "arc";
 export type DisplayFont = "fraunces" | "newsreader" | "spectral";
 
-const IS_DEV = process.env.NODE_ENV === "development";
+const EXPLORATION_ON =
+  process.env.NODE_ENV === "development" ||
+  process.env.NEXT_PUBLIC_SHOW_EXPLORATION === "true";
 
 const STAR_KEY = "lbsm.dev.starMotif";
 const FONT_KEY = "lbsm.dev.displayFont";
@@ -74,7 +77,7 @@ function readStored<T extends string>(
   order: readonly T[],
   fallback: T,
 ): T {
-  if (!IS_DEV) return fallback;
+  if (!EXPLORATION_ON) return fallback;
   try {
     const value = window.localStorage.getItem(key);
     return value !== null && (order as readonly string[]).includes(value)
@@ -115,7 +118,7 @@ export function HomeExplorationProvider({ children }: { children: ReactNode }) {
   // Sync the chosen display face to the root; the switching CSS reads it.
   // Updating the DOM from state is exactly what an effect is for.
   useEffect(() => {
-    if (!IS_DEV) return;
+    if (!EXPLORATION_ON) return;
     document.documentElement.dataset.displayFont = displayFont;
   }, [displayFont]);
 
@@ -130,7 +133,7 @@ export function HomeExplorationProvider({ children }: { children: ReactNode }) {
   return (
     <ExplorationContext.Provider value={value}>
       {children}
-      {IS_DEV ? <ExplorationDevTools /> : null}
+      {EXPLORATION_ON ? <ExplorationDevTools /> : null}
     </ExplorationContext.Provider>
   );
 }
