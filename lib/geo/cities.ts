@@ -7,20 +7,9 @@
  * text (lowercase, accent-stripped, whitespace-collapsed) and match it
  * against the known coastal towns below. Unknown cities are silently
  * omitted from the map; the ledger row still renders in full.
- *
- * Coordinates live in the map's own SVG viewBox, not in latitude and
- * longitude. They were placed with a simple linear projection of the real
- * north-central coast: longitude runs west (small x) to east (large x),
- * latitude runs north (small y) to south (large y), so the seven coastal
- * towns form a shallow arc along the top and Caracas drops inland below.
- * Approximate placement is intentional; this is an orientation aid, not a
- * survey.
  */
 
-export type CityCoord = { x: number; y: number };
-
-/** The SVG coordinate space every coordinate below is expressed in. */
-export const MAP_VIEWBOX = { width: 400, height: 240 } as const;
+export type CityCoord = { lat: number; lng: number };
 
 type KnownCity = {
   /** Canonical display label. City names are proper nouns, not translated. */
@@ -48,16 +37,17 @@ export function normalizeCityName(name: string): string {
 /**
  * Known towns keyed by their folded name. At least the affected
  * north-central coast: Caracas, La Guaira, Caraballeda, Catia La Mar,
- * Maiquetia, Macuto, Naiguata.
+ * Maiquetia, Macuto, Naiguata. Coordinates are real world latitude and
+ * longitude, plotted on the CARTO vector basemap.
  */
 const KNOWN_CITIES: Record<string, KnownCity> = {
-  "catia la mar": { label: "Catia La Mar", coord: { x: 60, y: 90 } },
-  maiquetia: { label: "Maiquetía", coord: { x: 108, y: 90 } },
-  "la guaira": { label: "La Guaira", coord: { x: 156, y: 88 } },
-  macuto: { label: "Macuto", coord: { x: 186, y: 82 } },
-  caraballeda: { label: "Caraballeda", coord: { x: 234, y: 80 } },
-  naiguata: { label: "Naiguatá", coord: { x: 340, y: 74 } },
-  caracas: { label: "Caracas", coord: { x: 186, y: 176 } },
+  "catia la mar": { label: "Catia La Mar", coord: { lat: 10.598, lng: -67.033 } },
+  maiquetia: { label: "Maiquetía", coord: { lat: 10.598, lng: -66.978 } },
+  "la guaira": { label: "La Guaira", coord: { lat: 10.6012, lng: -66.931 } },
+  macuto: { label: "Macuto", coord: { lat: 10.607, lng: -66.888 } },
+  caraballeda: { label: "Caraballeda", coord: { lat: 10.611, lng: -66.849 } },
+  naiguata: { label: "Naiguatá", coord: { lat: 10.617, lng: -66.735 } },
+  caracas: { label: "Caracas", coord: { lat: 10.4806, lng: -66.9036 } },
 };
 
 /** Returns the map coordinate for a city cell, or null if unknown. */

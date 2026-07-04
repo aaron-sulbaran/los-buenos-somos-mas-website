@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Private working docs and design mockups, never shipped.
+    "docs/**",
   ]),
 ]);
 
