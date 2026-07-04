@@ -18,6 +18,10 @@
 @theme inline {
   --font-sans: var(--font-instrument-sans), sans-serif;
   --font-display: var(--font-fraunces), serif;
+  /* Alternate display serifs for the dev-only home font exploration. The dev
+     toggle reassigns --font-display to one of these via data-display-font. */
+  --font-newsreader: var(--font-newsreader-src), serif;
+  --font-spectral: var(--font-spectral-src), serif;
 }
 
 /* Single documentary palette; the site intentionally has no dark mode. */
