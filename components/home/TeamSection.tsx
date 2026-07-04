@@ -16,7 +16,6 @@ type Member = {
 const MEMBERS: Member[] = [
   { name: "Barbara", initial: "B", roleEs: "Organizadora", roleEn: "Organizer" },
   { name: "Kelly", initial: "K", roleEs: "Organizadora", roleEn: "Organizer" },
-  { name: "Isabela", initial: "I", roleEs: "Organizadora", roleEn: "Organizer" },
   {
     name: "Aaron",
     initial: "A",
