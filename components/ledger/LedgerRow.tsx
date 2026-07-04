@@ -108,45 +108,46 @@ export function LedgerRow({ row }: { row: MoneyOutWithPreview }) {
   const thumbAlt = lang === "es" ? "Recibo del fondo" : "Fund receipt";
   const openReceiptLabel = lang === "es" ? "Ver recibo" : "View receipt";
 
-  return (
-    <li className="border-b border-border last:border-b-0">
-      <button
-        type="button"
-        onClick={() => setExpanded((open) => !open)}
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        className="group flex w-full items-start justify-between gap-3 py-4 text-left transition-colors hover:bg-background/60"
-      >
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <time
-              dateTime={row.date}
-              className="text-xs tabular-nums text-muted"
-            >
-              {formatDate(row.date, lang)}
-            </time>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] uppercase tracking-wide text-muted">
-              <span
-                aria-hidden="true"
-                className="inline-block h-1.5 w-1.5 rounded-full bg-accent-blue"
-              />
-              {category}
-            </span>
-          </span>
-          {/* Single copy of the description: truncated while collapsed,
-              full text when expanded, so the panel never repeats it. */}
-          <span
-            className={`mt-1.5 block pr-2 text-body ${
-              expanded ? "" : "truncate"
-            }`}
+  // A bare row (no photos, no publication, no chips) has nothing to
+  // reveal: it renders as a static row with the full description and no
+  // expand control.
+  const hasDetails =
+    hasMedia || hasPublication || Boolean(row.city) || Boolean(row.purchaser);
+  const showFullDescription = expanded || !hasDetails;
+
+  const rowHeader = (
+    <>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <time
+            dateTime={row.date}
+            className="text-xs tabular-nums text-muted"
           >
-            {description}
+            {formatDate(row.date, lang)}
+          </time>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] uppercase tracking-wide text-muted">
+            <span
+              aria-hidden="true"
+              className="inline-block h-1.5 w-1.5 rounded-full bg-accent-blue"
+            />
+            {category}
           </span>
         </span>
-        <span className="flex shrink-0 items-center gap-2">
-          <span className="font-display text-lg tabular-nums tracking-tight">
-            {formatUsd(row.amountUsd, lang)}
-          </span>
+        {/* Single copy of the description: truncated while collapsed,
+            full text when expanded or when the row is static. */}
+        <span
+          className={`mt-1.5 block pr-2 text-body ${
+            showFullDescription ? "" : "truncate"
+          }`}
+        >
+          {description}
+        </span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2">
+        <span className="font-display text-lg tabular-nums tracking-tight">
+          {formatUsd(row.amountUsd, lang)}
+        </span>
+        {hasDetails ? (
           <svg
             aria-hidden="true"
             viewBox="0 0 20 20"
@@ -159,8 +160,28 @@ export function LedgerRow({ row }: { row: MoneyOutWithPreview }) {
           >
             <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </span>
-      </button>
+        ) : null}
+      </span>
+    </>
+  );
+
+  return (
+    <li className="border-b border-border last:border-b-0">
+      {hasDetails ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((open) => !open)}
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          className="group flex w-full items-start justify-between gap-3 py-4 text-left transition-colors hover:bg-background/60"
+        >
+          {rowHeader}
+        </button>
+      ) : (
+        <div className="flex w-full items-start justify-between gap-3 py-4 text-left">
+          {rowHeader}
+        </div>
+      )}
 
       <AnimatePresence initial={false}>
         {expanded ? (
