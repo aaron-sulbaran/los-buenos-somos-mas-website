@@ -133,7 +133,13 @@ export function LedgerRow({ row }: { row: MoneyOutWithPreview }) {
               {category}
             </span>
           </span>
-          <span className="mt-1.5 block truncate pr-2 text-body">
+          {/* Single copy of the description: truncated while collapsed,
+              full text when expanded, so the panel never repeats it. */}
+          <span
+            className={`mt-1.5 block pr-2 text-body ${
+              expanded ? "" : "truncate"
+            }`}
+          >
             {description}
           </span>
         </span>
@@ -169,8 +175,6 @@ export function LedgerRow({ row }: { row: MoneyOutWithPreview }) {
             className="overflow-hidden"
           >
             <div className="space-y-5 pb-5">
-              <p className="max-w-2xl text-body">{description}</p>
-
               {hasMedia || hasPublication ? (
                 <div className="flex flex-col gap-6 min-[720px]:flex-row min-[720px]:items-start">
                   {hasMedia ? (

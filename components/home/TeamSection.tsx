@@ -39,7 +39,7 @@ export function TeamSection() {
           />
         </p>
 
-        <Reveal className="mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-10 min-[520px]:grid-cols-3">
+        <Reveal className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-10 min-[520px]:grid-cols-3">
           {MEMBERS.map((member) => {
             const headshot = publicImage(`team/${member.name.toLowerCase()}`);
             return (
