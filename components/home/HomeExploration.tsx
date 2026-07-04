@@ -13,8 +13,9 @@ import {
 /**
  * Two design explorations for the home page, gated to development only.
  *
- *  - Star motif: the hero constellation renders as an irregular "scatter"
- *    (default) or a deliberate "arc" of four with a fifth clipped by the frame.
+ *  - Star motif: the hero constellation renders as a deliberate "arc" of four
+ *    with a fifth clipped by the frame (default, user-locked) or an irregular
+ *    "scatter".
  *  - Display font: the display serif swaps between Fraunces (default) and two
  *    editorial alternates, Newsreader and Spectral.
  *
@@ -36,7 +37,7 @@ const STAR_KEY = "lbsm.dev.starMotif";
 const FONT_KEY = "lbsm.dev.displayFont";
 const STORE_EVENT = "lbsm:dev-exploration";
 
-const STAR_ORDER = ["scatter", "arc"] as const;
+const STAR_ORDER = ["arc", "scatter"] as const;
 const FONT_ORDER = ["fraunces", "newsreader", "spectral"] as const;
 
 const FONT_LABEL: Record<DisplayFont, string> = {
@@ -53,7 +54,7 @@ type ExplorationValue = {
 };
 
 const ExplorationContext = createContext<ExplorationValue>({
-  starMotif: "scatter",
+  starMotif: "arc",
   displayFont: "fraunces",
   cycleStar: () => {},
   cycleFont: () => {},
@@ -108,7 +109,7 @@ function useStored<T extends string>(
 }
 
 export function HomeExplorationProvider({ children }: { children: ReactNode }) {
-  const starMotif = useStored<StarMotif>(STAR_KEY, STAR_ORDER, "scatter");
+  const starMotif = useStored<StarMotif>(STAR_KEY, STAR_ORDER, "arc");
   const displayFont = useStored<DisplayFont>(FONT_KEY, FONT_ORDER, "fraunces");
 
   // Sync the chosen display face to the root; the switching CSS reads it.
@@ -144,9 +145,13 @@ function ExplorationDevTools() {
 
   return (
     <>
+      {/* globals.css uses @theme inline, so the font-display utility bakes
+          Fraunces in at build time; reassigning --font-display does nothing.
+          Instead, override the .font-display class itself with the raw
+          next/font variables. Dev-only, production CSS is untouched. */}
       <style>{`
-        :root[data-display-font="newsreader"] { --font-display: var(--font-newsreader); }
-        :root[data-display-font="spectral"] { --font-display: var(--font-spectral); }
+        :root[data-display-font="newsreader"] .font-display { font-family: var(--font-newsreader-src), serif; }
+        :root[data-display-font="spectral"] .font-display { font-family: var(--font-spectral-src), serif; }
       `}</style>
       <div
         className="fixed bottom-3 right-3 z-50 flex flex-col gap-1 rounded-md border border-border bg-card/95 px-2 py-2 text-[10px] uppercase tracking-[0.14em] text-muted shadow-sm backdrop-blur-sm"

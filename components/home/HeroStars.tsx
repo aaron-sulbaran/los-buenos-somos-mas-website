@@ -5,11 +5,13 @@ import { useHomeExploration } from "./HomeExploration";
 /**
  * The hero constellation. Abstract by intent: never a countable seven or
  * eight, never a flag. Two explorable treatments, selected in dev; production
- * always renders the scatter default.
+ * always renders the arc default (user-locked).
+ * TODO: Aaron plans custom star SVGs from Figma; when they arrive, swap the
+ * paths inside StarArc and keep the clipped-fifth composition.
  */
 export function HeroStars() {
   const { starMotif } = useHomeExploration();
-  return starMotif === "arc" ? <StarArc /> : <StarScatter />;
+  return starMotif === "scatter" ? <StarScatter /> : <StarArc />;
 }
 
 /**
