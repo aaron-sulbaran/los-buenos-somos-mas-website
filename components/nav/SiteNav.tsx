@@ -6,10 +6,22 @@ import { useT } from "@/lib/i18n/language-context";
 import type { DictKey } from "@/lib/i18n/dictionary";
 import { LanguageToggle } from "./LanguageToggle";
 
-const LINKS: { href: string; key: DictKey }[] = [
-  { href: "/", key: "nav.home" },
-  { href: "/transparency", key: "nav.transparency" },
-  { href: "/support", key: "nav.support" },
+/**
+ * Active-tab underlines follow the flag's color order across the three
+ * routes: yellow, blue, red. A quiet motif, never a literal flag.
+ */
+const LINKS: { href: string; key: DictKey; decoration: string }[] = [
+  { href: "/", key: "nav.home", decoration: "decoration-accent-yellow" },
+  {
+    href: "/transparency",
+    key: "nav.transparency",
+    decoration: "decoration-accent-blue",
+  },
+  {
+    href: "/support",
+    key: "nav.support",
+    decoration: "decoration-accent-red",
+  },
 ];
 
 export function SiteNav() {
@@ -18,7 +30,9 @@ export function SiteNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+      {/* Padding matches the hero's so the wordmark sits on the same left
+          edge as the page content instead of floating inward. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-3 sm:px-10 min-[860px]:px-14">
         <Link
           href="/"
           className="font-display text-lg leading-tight tracking-tight"
@@ -30,7 +44,7 @@ export function SiteNav() {
         </div>
         <nav
           aria-label="Main"
-          className="flex w-full items-center gap-5 text-sm sm:w-auto"
+          className="flex w-full items-center gap-5 text-sm sm:ml-auto sm:w-auto"
         >
           {LINKS.map((link) => {
             const active = pathname === link.href;
@@ -41,7 +55,7 @@ export function SiteNav() {
                 aria-current={active ? "page" : undefined}
                 className={`py-1 transition-colors ${
                   active
-                    ? "text-foreground underline decoration-accent-yellow decoration-2 underline-offset-8"
+                    ? `text-foreground underline decoration-2 underline-offset-8 ${link.decoration}`
                     : "text-muted hover:text-foreground"
                 }`}
               >

@@ -9,7 +9,7 @@ type Member = {
 };
 
 /**
- * The four people behind the fund. Only these names appear anywhere on the
+ * The three people behind the fund. Only these names appear anywhere on the
  * site. No faces yet: each portrait is a tonal plate with the person's initial
  * until an organizer-owned headshot is provided.
  */
@@ -38,7 +38,7 @@ export function TeamSection() {
           />
         </p>
 
-        <Reveal className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 min-[720px]:grid-cols-4">
+        <Reveal className="mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-10 min-[520px]:grid-cols-3">
           {MEMBERS.map((member) => (
             <div key={member.name} className="flex flex-col">
               {/* TODO organizers: swap the initial plate for an organizer-owned

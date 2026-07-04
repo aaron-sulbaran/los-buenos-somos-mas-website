@@ -1,7 +1,6 @@
 import { getLedgerData } from "@/lib/sheets";
 import { reconcileTotals } from "@/lib/totals";
 import type { Totals } from "@/lib/totals";
-import { HomeExplorationProvider } from "@/components/home/HomeExploration";
 import { Hero } from "@/components/hero/Hero";
 import { OriginSection } from "@/components/hero/OriginSection";
 import { TeamSection } from "@/components/home/TeamSection";
@@ -24,12 +23,12 @@ export default async function HomePage() {
       : reconcileTotals(data.moneyIn, data.moneyOut);
 
   return (
-    <HomeExplorationProvider>
+    <>
       <Hero />
       <OriginSection />
       <TeamSection />
       <SummaryTeaser totals={totals} />
       <InstagramSection />
-    </HomeExplorationProvider>
+    </>
   );
 }

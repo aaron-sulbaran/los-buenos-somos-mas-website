@@ -90,13 +90,8 @@ describe("no hardcoded hex colors in className or style (tsx)", () => {
 });
 
 describe("next/font/google imports are limited to the locked families", () => {
-  it("only imports Fraunces, Instrument_Sans, Newsreader, or Spectral", () => {
-    const ALLOWED = new Set([
-      "Fraunces",
-      "Instrument_Sans",
-      "Newsreader",
-      "Spectral",
-    ]);
+  it("only imports Fraunces or Instrument_Sans (locked after walkthrough)", () => {
+    const ALLOWED = new Set(["Fraunces", "Instrument_Sans"]);
     const offenders: string[] = [];
     for (const file of ALL_SOURCE_FILES) {
       const content = readFileSync(file, "utf8");

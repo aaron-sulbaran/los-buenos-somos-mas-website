@@ -35,9 +35,14 @@ export function Hero() {
         <HeroStars />
 
         {/* Locator */}
-        <div className="relative z-10 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
-          <span className="h-px w-5 bg-accent-yellow" aria-hidden="true" />
-          Venezuela · 2026
+        <div className="relative z-10 flex items-baseline gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+          <span className="h-px w-5 shrink-0 self-center bg-accent-yellow" aria-hidden="true" />
+          <span className="max-w-[24ch] leading-[1.8] min-[860px]:max-w-none">
+            <LocalizedText
+              es="Fondo de ayuda por el terremoto en Venezuela"
+              en="Venezuela Earthquake Relief Fund"
+            />
+          </span>
         </div>
 
         {/* Body, vertically centered */}
@@ -84,6 +89,17 @@ export function Hero() {
               </span>
             </Link>
           </div>
+        </div>
+
+        {/* Scroll cue */}
+        <div className="relative z-10 flex items-center gap-2.5 pb-1 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+          <span aria-hidden="true" className="motion-safe:animate-bounce">
+            &#8595;
+          </span>
+          <LocalizedText
+            es="Desplázate para conocer más"
+            en="Scroll to learn more"
+          />
         </div>
       </div>
 
