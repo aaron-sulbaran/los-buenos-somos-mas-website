@@ -35,14 +35,20 @@ export function parseDateLenient(raw: string | undefined): string | null {
     return toIsoDate(year, Number(us[1]), Number(us[2]));
   }
 
-  const timestamp = Date.parse(value);
-  if (!Number.isNaN(timestamp)) {
-    const date = new Date(timestamp);
-    return toIsoDate(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      date.getDate(),
-    );
+  // Date.parse is dangerously lenient: Spanish month names like "junio",
+  // "mayo", or "marzo" collide with English month abbreviations and the
+  // year silently defaults to 2001, publishing a corrupted date. Only
+  // trust the fallback when the string carries an explicit 4-digit year.
+  if (/\b\d{4}\b/.test(value)) {
+    const timestamp = Date.parse(value);
+    if (!Number.isNaN(timestamp)) {
+      const date = new Date(timestamp);
+      return toIsoDate(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        date.getDate(),
+      );
+    }
   }
 
   return null;
