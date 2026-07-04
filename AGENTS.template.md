@@ -1,0 +1,1 @@
+The template that will mimic AGENTS.md but will be public facing on GitHub. Update accordingly.
