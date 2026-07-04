@@ -4,9 +4,9 @@ import {
   cleanOptional,
   parseAmountUsd,
   parseDateLenient,
+  parseLabeledMedia,
   parsePublicLink,
   parseReady,
-  parseReceiptLinks,
 } from "./normalize";
 
 /**
@@ -34,7 +34,13 @@ export const moneyOutSchema = z.object({
   descriptionEs: z.string().min(1),
   descriptionEn: optionalText,
   city: optionalText,
-  receiptFileIds: z.array(z.string()),
+  media: z.array(
+    z.object({
+      fileId: z.string().min(10),
+      label: z.string().min(1).optional(),
+    }),
+  ),
+  publicationPreviewFileId: z.string().min(10).optional(),
   publicLink: z.url().optional(),
   purchaser: optionalText,
 });
@@ -116,6 +122,7 @@ export function normalizeMoneyOutRows(
     if (!parseReady(cellAt(row, header, "ready"))) return;
 
     const descriptionEs = cleanOptional(cellAt(row, header, "description es"));
+    const parsedMedia = parseLabeledMedia(cellAt(row, header, "receipt links"));
     const candidate = {
       date: parseDateLenient(cellAt(row, header, "date")),
       amountUsd: parseAmountUsd(cellAt(row, header, "amount")),
@@ -123,7 +130,8 @@ export function normalizeMoneyOutRows(
       descriptionEs: descriptionEs ?? "",
       descriptionEn: cleanOptional(cellAt(row, header, "description en")),
       city: cleanOptional(cellAt(row, header, "city")),
-      receiptFileIds: parseReceiptLinks(cellAt(row, header, "receipt links")),
+      media: parsedMedia.media,
+      publicationPreviewFileId: parsedMedia.publicationPreviewFileId,
       publicLink: parsePublicLink(cellAt(row, header, "public link")),
       purchaser: cleanOptional(cellAt(row, header, "purchaser")),
     };

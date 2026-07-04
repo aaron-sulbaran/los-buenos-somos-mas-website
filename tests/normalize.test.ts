@@ -6,7 +6,7 @@ import {
   parseDateLenient,
   parsePublicLink,
   parseReady,
-  parseReceiptLinks,
+  parseLabeledMedia,
 } from "@/lib/sheets/normalize";
 
 describe("parseAmountUsd", () => {
@@ -62,17 +62,48 @@ describe("extractDriveFileId", () => {
   });
 });
 
-describe("parseReceiptLinks", () => {
-  it("splits, extracts, and dedupes", () => {
-    const a = "FIXTUREaaaaaaaaaaaaaaaa1";
-    const b = "FIXTUREbbbbbbbbbbbbbbbb2";
-    const cell = `https://drive.google.com/file/d/${a}/view, https://drive.google.com/open?id=${b}\nhttps://drive.google.com/file/d/${a}/view`;
-    expect(parseReceiptLinks(cell)).toEqual([a, b]);
+describe("parseLabeledMedia", () => {
+  const a = "FIXTUREaaaaaaaaaaaaaaaa1";
+  const b = "FIXTUREbbbbbbbbbbbbbbbb2";
+  const c = "FIXTUREcccccccccccccccc3";
+  const link = (id: string) => `https://drive.google.com/file/d/${id}/view`;
+
+  it("keeps the old unlabeled comma format working, with dedupe", () => {
+    const cell = `${link(a)}, https://drive.google.com/open?id=${b}\n${link(a)}`;
+    expect(parseLabeledMedia(cell)).toEqual({
+      media: [{ fileId: a }, { fileId: b }],
+      publicationPreviewFileId: undefined,
+    });
+  });
+
+  it("reads one labeled photo per line", () => {
+    const cell = `Recibo ${link(a)}\nMateriales comprados: ${link(b)}`;
+    expect(parseLabeledMedia(cell).media).toEqual([
+      { fileId: a, label: "Recibo" },
+      { fileId: b, label: "Materiales comprados" },
+    ]);
+  });
+
+  it("pulls a Publicación photo out as the preview, accent-insensitive", () => {
+    const cell = `Recibo ${link(a)}\nPublicación ${link(c)}`;
+    const parsed = parseLabeledMedia(cell);
+    expect(parsed.publicationPreviewFileId).toBe(c);
+    expect(parsed.media).toEqual([{ fileId: a, label: "Recibo" }]);
+    expect(parseLabeledMedia(`publicacion ${link(c)}`).publicationPreviewFileId).toBe(c);
+    expect(parseLabeledMedia(`Story ${link(c)}`).publicationPreviewFileId).toBe(c);
   });
 
   it("drops invalid links and returns empty for blank cells", () => {
-    expect(parseReceiptLinks("not a link, also junk")).toEqual([]);
-    expect(parseReceiptLinks(undefined)).toEqual([]);
+    expect(parseLabeledMedia("not a link, also junk").media).toEqual([]);
+    expect(parseLabeledMedia(undefined).media).toEqual([]);
+  });
+
+  it("labels only the first link when several share a line", () => {
+    const cell = `Recibo ${link(a)}, ${link(b)}`;
+    expect(parseLabeledMedia(cell).media).toEqual([
+      { fileId: a, label: "Recibo" },
+      { fileId: b },
+    ]);
   });
 });
 

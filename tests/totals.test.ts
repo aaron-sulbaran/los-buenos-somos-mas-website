@@ -13,7 +13,7 @@ const moneyOut: MoneyOut[] = [
     date: "2026-06-29",
     amountUsd: 100.05,
     descriptionEs: "Ejemplo",
-    receiptFileIds: [],
+    media: [],
   },
 ];
 

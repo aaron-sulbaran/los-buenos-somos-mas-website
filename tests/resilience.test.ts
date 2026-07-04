@@ -95,7 +95,7 @@ describe("Money Out: optional fields absent one at a time", () => {
         expect(published.descriptionEn).toBeUndefined();
       if (column === "City") expect(published.city).toBeUndefined();
       if (column === "Receipt Links")
-        expect(published.receiptFileIds).toEqual([]);
+        expect(published.media).toEqual([]);
       if (column === "Public Link")
         expect(published.publicLink).toBeUndefined();
       if (column === "Purchaser")

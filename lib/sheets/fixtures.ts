@@ -48,8 +48,10 @@ export const MONEY_OUT_FIXTURE: string[][] = [
     "Compra de 40 cajas de agua potable para familias en el refugio.",
     "Purchase of 40 cases of drinking water for families at the shelter.",
     "La Guaira",
-    `${FIXTURE_RECEIPT_A}, ${FIXTURE_RECEIPT_B}`,
-    "",
+    // Labeled format: one photo per line, label before the link. The
+    // Publicación line becomes the public-link preview, not a gallery item.
+    `Recibo ${FIXTURE_RECEIPT_A}\nMateriales comprados ${FIXTURE_RECEIPT_B}\nPublicación ${FIXTURE_RECEIPT_C}`,
+    "https://www.instagram.com/reel/FIXTURE-not-real/",
     "Barbs",
     "TRUE",
   ],
@@ -60,6 +62,7 @@ export const MONEY_OUT_FIXTURE: string[][] = [
     "Medicamentos e insumos de primeros auxilios para el centro de salud.",
     "",
     "Caracas",
+    // Old bare-link format, no label: must keep working unchanged.
     FIXTURE_RECEIPT_C,
     "https://example.org/TODO-public-post",
     "Kelly",

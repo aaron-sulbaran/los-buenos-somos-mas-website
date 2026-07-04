@@ -1,3 +1,5 @@
+import type { MediaItem } from "./types";
+
 /**
  * Normalization helpers for raw sheet cells. Lenient on input, strict on
  * output: every function returns a clean value or null, never throws.
@@ -90,14 +92,77 @@ export function extractDriveFileId(link: string): string | null {
   return null;
 }
 
-/** Splits a receipt cell into deduplicated Drive file ids; invalid links are dropped. */
-export function parseReceiptLinks(raw: string | undefined): string[] {
-  if (!raw) return [];
-  const ids = raw
-    .split(/[\s,;]+/)
-    .map(extractDriveFileId)
-    .filter((id): id is string => id !== null);
-  return [...new Set(ids)];
+export type ParsedMedia = {
+  media: MediaItem[];
+  publicationPreviewFileId?: string;
+};
+
+/** Labels that mark a photo as the public-link preview, folded for comparison. */
+const PUBLICATION_LABELS = new Set([
+  "publicacion",
+  "post",
+  "historia",
+  "story",
+]);
+
+function foldLabel(label: string): string {
+  return label
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+const URL_PATTERN = /https?:\/\/\S+/g;
+
+/**
+ * Parses the photos cell: one photo per line, an optional label before the
+ * link ("Materiales https://drive.google.com/..."). No label shows the
+ * generic receipt label. A photo labeled "Publicación" (or Post, Historia,
+ * Story) is pulled out as the public-link preview thumbnail instead of
+ * appearing in the gallery. Bare links and the old comma-separated format
+ * keep working unchanged; invalid links are dropped.
+ */
+export function parseLabeledMedia(raw: string | undefined): ParsedMedia {
+  const media: MediaItem[] = [];
+  let publicationPreviewFileId: string | undefined;
+  if (!raw) return { media };
+
+  const seen = new Set<string>();
+  for (const line of raw.split(/\r?\n/)) {
+    const urls = [...line.matchAll(URL_PATTERN)].map((match) =>
+      match[0].replace(/[),.;]+$/, ""),
+    );
+
+    if (urls.length === 0) {
+      // A bare Drive id pasted without a URL, no label possible.
+      const bareId = extractDriveFileId(line);
+      if (bareId && !seen.has(bareId)) {
+        seen.add(bareId);
+        media.push({ fileId: bareId });
+      }
+      continue;
+    }
+
+    const labelText = line.slice(0, line.indexOf(urls[0])).trim();
+    const label =
+      labelText.replace(/[\s:–|-]+$/, "").trim() || undefined;
+
+    urls.forEach((url, index) => {
+      const fileId = extractDriveFileId(url);
+      if (!fileId || seen.has(fileId)) return;
+      seen.add(fileId);
+      // Only the first link on a line takes the line's label.
+      const itemLabel = index === 0 ? label : undefined;
+      if (itemLabel && PUBLICATION_LABELS.has(foldLabel(itemLabel))) {
+        publicationPreviewFileId = publicationPreviewFileId ?? fileId;
+      } else {
+        media.push(itemLabel ? { fileId, label: itemLabel } : { fileId });
+      }
+    });
+  }
+
+  return { media, publicationPreviewFileId };
 }
 
 const TRUTHY = new Set(["true", "yes", "si", "sí", "x", "✓", "1", "checked"]);

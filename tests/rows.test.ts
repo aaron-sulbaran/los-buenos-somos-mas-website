@@ -41,9 +41,12 @@ describe("normalizeMoneyOutRows over the fixture", () => {
     expect(skipped).toHaveLength(2);
   });
 
-  it("extracts receipt file ids from pasted share links", () => {
+  it("extracts labeled media and the publication preview", () => {
     const water = rows.find((row) => row.amountUsd === 312.4);
-    expect(water?.receiptFileIds).toHaveLength(2);
+    expect(water?.media).toHaveLength(2);
+    expect(water?.media[0].label).toBe("Recibo");
+    expect(water?.media[1].label).toBe("Materiales comprados");
+    expect(water?.publicationPreviewFileId).toBeDefined();
   });
 
   it("omits optional fields on the minimal row", () => {
@@ -51,7 +54,7 @@ describe("normalizeMoneyOutRows over the fixture", () => {
     expect(minimal).toBeDefined();
     expect(minimal?.category).toBeUndefined();
     expect(minimal?.city).toBeUndefined();
-    expect(minimal?.receiptFileIds).toEqual([]);
+    expect(minimal?.media).toEqual([]);
     expect(minimal?.publicLink).toBeUndefined();
     expect(minimal?.purchaser).toBeUndefined();
   });

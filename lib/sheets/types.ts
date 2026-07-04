@@ -8,6 +8,14 @@ export type MoneyIn = {
   through?: string;
 };
 
+/** One photo attached to a distribution, with its maintainer-assigned label. */
+export type MediaItem = {
+  /** Drive file id, already extracted from the pasted share link. */
+  fileId: string;
+  /** Label typed before the link in the sheet cell; absent shows the generic receipt label. */
+  label?: string;
+};
+
 export type MoneyOut = {
   /** ISO date, YYYY-MM-DD */
   date: string;
@@ -16,8 +24,10 @@ export type MoneyOut = {
   descriptionEs: string;
   descriptionEn?: string;
   city?: string;
-  /** Drive file ids, already extracted from pasted share links. */
-  receiptFileIds: string[];
+  /** Labeled photos, one per line in the sheet cell, any count. */
+  media: MediaItem[];
+  /** A photo labeled "Publicación" becomes the public-link preview thumbnail. */
+  publicationPreviewFileId?: string;
   publicLink?: string;
   purchaser?: string;
 };

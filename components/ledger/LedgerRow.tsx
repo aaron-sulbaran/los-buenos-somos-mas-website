@@ -23,7 +23,7 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
 
   const description = pickLocalized(lang, row.descriptionEs, row.descriptionEn);
   const category = row.category ?? t("common.uncategorized");
-  const hasReceipts = row.receiptFileIds.length > 0;
+  const hasReceipts = row.media.length > 0;
 
   const thumbAlt = lang === "es" ? "Recibo del fondo" : "Fund receipt";
   const openReceiptLabel = lang === "es" ? "Ver recibo" : "View receipt";
@@ -97,7 +97,7 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
                     <LocalizedText es="Recibos" en="Receipts" />
                   </p>
                   <ul className="flex flex-wrap gap-2">
-                    {row.receiptFileIds.map((fileId, index) => (
+                    {row.media.map(({ fileId }, index) => (
                       <li key={fileId}>
                         <button
                           type="button"
@@ -160,7 +160,7 @@ export function LedgerRow({ row }: { row: MoneyOut }) {
 
       {hasReceipts ? (
         <ReceiptLightbox
-          fileIds={row.receiptFileIds}
+          fileIds={row.media.map((item) => item.fileId)}
           openIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
         />
